@@ -7,6 +7,8 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir src/backend
     healthCheckPath: /health
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET_KEY
@@ -25,6 +27,9 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir src/ml_service
     healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
 
 # Frontend static site should be created separately in Render UI:
 # New + -> Static Site
