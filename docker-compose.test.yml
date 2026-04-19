@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: market_intelligence
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d market_intelligence"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/market_intelligence
+      CREATE_TABLES_ON_STARTUP: "false"
+      ML_SERVICE_BASE_URL: http://ml:8010
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      bash -lc "
+      cd src/backend &&
+      alembic -c alembic.ini upgrade head &&
+      cd /workspace &&
+      python -m pytest src/backend/tests -q
+      "
