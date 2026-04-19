@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: emi-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir src/backend
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: CREATE_TABLES_ON_STARTUP
+        value: "false"
+      - key: ML_SERVICE_BASE_URL
+        value: https://emi-ml.onrender.com
+      - key: CORS_ALLOW_ORIGINS
+        sync: false
+
+  - type: web
+    name: emi-ml
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir src/ml_service
+    healthCheckPath: /health
+
+  - type: static
+    name: emi-frontend
+    rootDir: src/frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_BACKEND_URL
+        value: https://emi-backend.onrender.com/api/v1
