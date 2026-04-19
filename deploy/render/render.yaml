@@ -26,11 +26,9 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --app-dir src/ml_service
     healthCheckPath: /health
 
-  - type: static_site
-    name: emi-frontend
-    rootDir: src/frontend
-    buildCommand: npm ci && npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_BACKEND_URL
-        value: https://emi-backend.onrender.com/api/v1
+# Frontend static site should be created separately in Render UI:
+# New + -> Static Site
+# Root Directory: src/frontend
+# Build Command: npm ci && npm run build
+# Publish Directory: dist
+# Env var: VITE_BACKEND_URL=https://<your-backend>.onrender.com/api/v1
